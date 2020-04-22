@@ -27,17 +27,23 @@ public class NutzerRolle {
 	@NotEmpty
 	private String bezeichnung;
 	
-	@ManyToMany(mappedBy = "rolle")
+	@ManyToMany(mappedBy = "rollen")
 	List<Nutzer> nutzer;
+	
+	
+	
 	
 	protected NutzerRolle() {
 		
 	}
-	
+		
 	public NutzerRolle(String bezeichnung) {
 		this.bezeichnung = bezeichnung;
 	}
 
+	
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -48,6 +54,14 @@ public class NutzerRolle {
 
 	public List<Nutzer> getNutzer() {
 		return nutzer;
+	}
+	
+	public void setBezeichnung(String bezeichnung) {
+		this.bezeichnung = bezeichnung;
+	}
+
+	public void setNutzer(List<Nutzer> nutzer) {
+		this.nutzer = nutzer;
 	}
 
 	@Override

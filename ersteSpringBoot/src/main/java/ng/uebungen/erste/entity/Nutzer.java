@@ -1,5 +1,6 @@
 package ng.uebungen.erste.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -30,7 +31,7 @@ public class Nutzer {
 	private Long id;
 	
 	@NotEmpty(message = "Nutzer_name wird benoetigt")
-	private String nutzername;
+	private String name;
 	
 	@NotEmpty(message = "Nutzer_password wird benoetigt")
 	private String password;
@@ -40,54 +41,75 @@ public class Nutzer {
 			name = "Nutzerrollen",
 			joinColumns = @JoinColumn(name="nutzer_id"),
 			inverseJoinColumns = @JoinColumn(name="rollen_id"))
-	private List<NutzerRolle> rolle;
+	private List<NutzerRolle> rollen = new ArrayList<NutzerRolle>();
 		
 	
 	@OneToMany(mappedBy = "nutzer")
 	private List<Einkauf> einkaeufe;
 	
 	
+
 	
 	protected Nutzer() {
 		
 	}
 
-
-	public Nutzer( String nutzername, String password, List<NutzerRolle> rollen) {
-		super();
-		this.nutzername = nutzername;
+	public Nutzer( String name, String password) {
+		this.name = name;
 		this.password = password;
-		this.rolle = rollen;
 	}
 
 
+	
+	
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 
 	public String getName() {
-		return nutzername;
+		return this.name;
 	}
 	
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 
 	public List<NutzerRolle> getRollen() {
-		return rolle;
+		return this.rollen;
 	}
 
 
 	public List<Einkauf> getEinkaeufe() {
-		return einkaeufe;
+		return this.einkaeufe;
+	}
+	
+	
+	public void setNutzername(String name) {
+		this.name = name;
 	}
 
 
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void addRolle(NutzerRolle rolle) {
+		this.rollen.add(rolle);
+	}
+	
+	public void setRollen(List<NutzerRolle> rollen) {
+		this.rollen = rollen;
+	}
+
+	
+	
+		
+
 	@Override
 	public String toString() {
-		return "Nutzer [id=" + id + ", nutzername=" + nutzername + ", password=" + password + "]";
+		return "Nutzer [id=" + id + ", name=" + name + ", password=" + password + "]";
 	}
 	
 	

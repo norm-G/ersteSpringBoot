@@ -48,14 +48,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	protected void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests()
 			//		.antMatchers("/welcome").access("hasRole('"+ nutzerDetailsService.+')").
-					.antMatchers("/","/welcome").permitAll()
-					.antMatchers("/rollen").hasAuthority("Admin")
-					.anyRequest()
+					.antMatchers("/*","/welcome").permitAll()
+			//		.antMatchers("/rollen").hasAuthority("Admin")
+			//		.anyRequest()
+					.antMatchers("/login")
 						.authenticated()
 						.and()
 			//		.httpBasic()	popup Abfrage
 			//			.and()
 					.formLogin()
+					.failureForwardUrl("/failure")
 			//		.defaultSuccessUrl("/welcome", true)
 						.and()
 					.logout()

@@ -8,7 +8,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import ng.uebungen.erste.entity.Artikel;
 import ng.uebungen.erste.entity.Einkauf;
@@ -49,14 +48,6 @@ public class Bootstrap implements ApplicationListener<ApplicationReadyEvent>{
 	public void onApplicationEvent(ApplicationReadyEvent event) {
 		
 		if(this.nutzerRepo.count()==0) {
-			NutzerRolle admin = new NutzerRolle("Admin");
-			NutzerRolle user = new NutzerRolle("User");
-			
-			List<NutzerRolle> lAdmin = new ArrayList<NutzerRolle>();
-			List<NutzerRolle> lUser = new ArrayList<NutzerRolle>();
-			
-			lAdmin.add(admin);
-			lUser.add(user);
 			
 			Artikel stuhl = new Artikel("Stuhl",10);
 			Artikel	tisch = new Artikel("tisch",20);
@@ -67,8 +58,18 @@ public class Bootstrap implements ApplicationListener<ApplicationReadyEvent>{
 			einkaeufe.add(tisch);
 			
 			
-			Nutzer bob = new Nutzer("bob",this.encoder.encode("1234"),lAdmin);
-			Nutzer noob = new Nutzer("noob",this.encoder.encode("1234"),lUser);
+			
+			
+			NutzerRolle admin = new NutzerRolle("Admin");
+			NutzerRolle user = new NutzerRolle("User");
+			
+			
+			Nutzer bob = new Nutzer("bob",this.encoder.encode("1234"));
+			Nutzer noob = new Nutzer("noob",this.encoder.encode("1234"));
+			
+			bob.addRolle(admin);
+			noob.addRolle(user);
+			
 			
 			Einkauf erster = new Einkauf(bob,einkaeufe);
 			

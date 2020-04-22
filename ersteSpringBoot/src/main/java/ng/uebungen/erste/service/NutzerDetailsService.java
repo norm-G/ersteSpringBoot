@@ -31,7 +31,7 @@ public class NutzerDetailsService implements UserDetailsService{
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		Nutzer nutzer= repository.findByNutzername(username);
+		Nutzer nutzer= repository.findByName(username);
 	
 		NutzerDetails details = new NutzerDetails(nutzer,getRollen(nutzer));
 

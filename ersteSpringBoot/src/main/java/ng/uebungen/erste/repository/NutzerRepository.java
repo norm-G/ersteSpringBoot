@@ -6,5 +6,5 @@ import ng.uebungen.erste.entity.Nutzer;
 
 
 public interface NutzerRepository extends JpaRepository<Nutzer, Long>{
-		Nutzer findByNutzername(String name);
+		Nutzer findByName(String name);
 }
