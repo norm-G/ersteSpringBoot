@@ -31,8 +31,6 @@ public class NutzerRolle {
 	List<Nutzer> nutzer;
 	
 	
-	
-	
 	protected NutzerRolle() {
 		
 	}
