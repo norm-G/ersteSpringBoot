@@ -103,14 +103,21 @@ public class Nutzer {
 		this.rollen = rollen;
 	}
 
+	public void addEinkauf(Einkauf einkauf) {
+		this.einkaeufe.add(einkauf);
+	}
 	
-	
+	public void setEinkaeufe(List<Einkauf> einkaeufe) {
+		this.einkaeufe = einkaeufe;
+	}
 		
 
 	@Override
 	public String toString() {
 		return "Nutzer [id=" + id + ", name=" + name + ", password=" + password + "]";
 	}
+
+	
 	
 	
 	

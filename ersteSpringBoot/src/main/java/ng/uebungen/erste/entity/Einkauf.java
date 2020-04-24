@@ -45,9 +45,11 @@ public class Einkauf {
 		
 	}
 
-
+	public Einkauf(Nutzer nutzer) {
+		this.nutzer = nutzer;
+	}
+		
 	public Einkauf(Nutzer nutzer, List<Artikel> artikel) {
-		super();
 		this.nutzer = nutzer;
 		this.artikel = artikel;
 	}
@@ -69,7 +71,19 @@ public class Einkauf {
 	public List<Artikel> getArtikel() {
 		return artikel;
 	}
-
+	
+	
+	public void addArtikel(Artikel artikel) {
+		this.artikel.add(artikel);
+	}
+	
+	public void removeArtiekl(Artikel artikel) {
+		this.artikel.remove(artikel);
+	}
+	
+	public void setArtikel(List<Artikel> artikel) {
+		this.artikel = artikel;
+	}
 
 
 	@Override

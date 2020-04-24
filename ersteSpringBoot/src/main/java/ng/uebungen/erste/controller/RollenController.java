@@ -27,41 +27,41 @@ public class RollenController {
 	
 	
 	@Autowired
-	NutzerRollenRepository rollen;
+	NutzerRollenRepository rollenRepro;
 	
 	//Root
 	@GetMapping("")
 	public ResponseEntity<List<NutzerRolle>> alleRollen(){
-		return ResponseEntity.ok(rollen.findAll());
+		return ResponseEntity.ok(rollenRepro.findAll());
 	}
 	
 	@PostMapping("")
 	public NutzerRolle newRoll(@RequestBody NutzerRolle rolle) {
-		return rollen.save(rolle);
+		return rollenRepro.save(rolle);
 	}
 	
 	//einzel
 	@GetMapping("/{id}")
 	public NutzerRolle getRolle(@PathVariable Long id) {
-		return rollen.findById(id).orElseThrow(()-> new NotFoundException(id,exName));
+		return rollenRepro.findById(id).orElseThrow(()-> new NotFoundException(id,exName));
 	}
 	
 	@PutMapping("/{id}")
 	public NutzerRolle updateRolle(@PathVariable Long id, @RequestBody NutzerRolle rolle) {
-		
-		return rollen.findById(id).map(
+		//update oder new Artikel
+		return rollenRepro.findById(id).map(
 						zwischenRolle -> {
 								zwischenRolle.setBezeichnung(rolle.getBezeichnung());
-								return rollen.save(zwischenRolle);
+								return rollenRepro.save(zwischenRolle);
 							}).orElseGet(()->{
 								//kein setID da ich autoID nutzen will 
-								return rollen.save(rolle);
+								return rollenRepro.save(rolle);
 							});	
 	}
 	
 	@DeleteMapping("/{id}")
 	public void deleteRolle (@PathVariable Long id) {
-		rollen.deleteById(id);
+		rollenRepro.deleteById(id);
 	}
 	
 	

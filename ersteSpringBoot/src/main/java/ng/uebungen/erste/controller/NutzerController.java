@@ -27,12 +27,12 @@ public class NutzerController {
 	//Der Name für die Exception Ausgabe
 	private String exNutzerName="Nutzer";
 	private String exRolleName="Rolle";
-	private String exEinkaufName="Einkauf";
+	
 	
 	//um plain password zu codieren
 	@Autowired
 	protected PasswordEncoder encoder;
-	
+		
 	@Autowired
 	protected NutzerRepository nutzerRepro;
 	
@@ -89,41 +89,71 @@ public class NutzerController {
 	/*
 	 * Update 
 	 * TODO
-	 * SetEinkaeufe
+	 * 
+	 * setRollen : nicht nur rolle hinzufügen sondern auch komplett ändern 
 	 * 
 	 */
 	@PutMapping("/{id}")
 	public Nutzer updateNutzer(@PathVariable Long id, @RequestBody Nutzer nutzer) {
-		Nutzer aktuellerNutzer = nutzerRepro.findById(id).orElseThrow(()-> new NotFoundException(id, exNutzerName));
+/*		Nutzer aktuellerNutzer = nutzerRepro.findById(id).orElseThrow(()-> new NotFoundException(id, exNutzerName));
 		aktuellerNutzer.setNutzername(nutzer.getName());
 		aktuellerNutzer.setPassword(encoder.encode(nutzer.getPassword()));
 		
 		nutzerRepro.save(aktuellerNutzer);
 		
 		return aktuellerNutzer;
+		*/
+		
+		return nutzerRepro.findById(id).map(
+									zNutzer ->{
+												zNutzer.setNutzername(nutzer.getName());
+												zNutzer.setPassword(encoder.encode(nutzer.getPassword()));
+												return nutzerRepro.save(zNutzer);
+									}).orElseGet(()->{
+											nutzer.setPassword(encoder.encode(nutzer.getPassword()));
+											return nutzerRepro.save(nutzer);
+									});
+				
+		
+		
 	}
 	
+	//add Rolle
 	@PutMapping("/{id}/rollen")
 	public Nutzer addRolle(@PathVariable Long id, @RequestBody NutzerRolle rolle) {
-		Nutzer nutzer = nutzerRepro.findById(id).orElseThrow(()-> new NotFoundException(id, exNutzerName));
-		rolle = rollenRepro.findByBezeichnung(rolle.getBezeichnung());
-		
-		if(rolle==null) {
-			throw new NotFoundException(exRolleName);
-		}
-		
-		nutzer.addRolle(rolle);
+		Nutzer nutzer = nutzerRepro.findById(id).orElseThrow(()-> new NotFoundException(id, exNutzerName));		
+		nutzer.addRolle(rollenRepro.findById(rolle.getId()).orElseThrow(()-> new NotFoundException(exRolleName)));
 		
 		nutzerRepro.save(nutzer);
 		return nutzer;
 	}
 	
 	
+	
+	
+	
+	/*
+	 * Sollte hier nicht ausgeführt werden?
+	 * 
+	 
+	@PutMapping("/{id}/einkaeufe")
+	public Nutzer addEinkaeufe(@PathVariable Long id, @RequestBody Einkauf einkauf) {
+		
+		Nutzer nutzer = nutzerRepro.findById(id).orElseThrow(()-> new NotFoundException(id, exNutzerName));
+		einkauf = einkaufRepro.findById(einkauf.getId()).orElseThrow(()-> new NotFoundException(exEinkaufName));
+		
+		nutzer.addEinkauf(einkauf);
+		nutzerRepro.save(nutzer);
+		
+		return nutzer;		
+	}
+	*/
+	
+	
 	//delete
 	@DeleteMapping("/{id}")
 	public void deleteNutzer(@PathVariable Long id) {
 		nutzerRepro.deleteById(id);
-		
 	}
 	
 	

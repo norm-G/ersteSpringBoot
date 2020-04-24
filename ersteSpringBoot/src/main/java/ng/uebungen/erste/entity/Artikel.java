@@ -56,6 +56,14 @@ public class Artikel {
 	public List<Einkauf> getEinkaeufe() {
 		return einkaeufe;
 	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPreis(int preis) {
+		this.preis = preis;
+	}
 
 	@Override
 	public String toString() {
