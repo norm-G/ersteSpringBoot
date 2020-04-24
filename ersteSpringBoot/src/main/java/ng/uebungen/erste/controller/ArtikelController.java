@@ -3,6 +3,10 @@ package ng.uebungen.erste.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,19 +31,41 @@ public class ArtikelController {
 	ArtikelRepository artikelRepo;
 	
 	@GetMapping("")
-	public List<Artikel> alleArtikel(){
-		return artikelRepo.findAll();
+	public CollectionModel<Artikel> alleArtikel(){
+		
+		List<Artikel> artikel = artikelRepo.findAll();
+		
+		for(Artikel zArtikel:artikel) {
+			Link selfLink = linkTo(methodOn(ArtikelController.class).einArtikel(zArtikel.getId())).withSelfRel();
+			zArtikel.add(selfLink);
+		}
+		
+		 
+		return new CollectionModel<>(artikel,
+									linkTo(ArtikelController.class).withSelfRel());
 	}
 	
 	@PostMapping("")
-	public Artikel newArtikel(@RequestBody Artikel artikel) {
-		return artikelRepo.save(artikel);
+	public EntityModel<Artikel> newArtikel(@RequestBody Artikel artikel) {
+		Artikel zArtikel = artikelRepo.save(artikel);
+		return new EntityModel<>(zArtikel,
+				linkTo(ArtikelController.class).slash(zArtikel.getId()).withSelfRel(),
+				linkTo(ArtikelController.class).withRel("artikel")
+				);
 	}
 	
+	
 	@GetMapping("/{id}")
-	public Artikel getArtikel(@PathVariable Long id) {
-		return artikelRepo.findById(id).orElseThrow(()->new NotFoundException(id, exArtikel));
+	public EntityModel<Artikel> einArtikel(@PathVariable Long id){
+		Artikel artikel = artikelRepo.findById(id).orElseThrow(()->new NotFoundException(id, exArtikel));
+		
+		return new EntityModel<>(artikel,
+								linkTo(ArtikelController.class).slash(artikel.getId()).withSelfRel(),
+								linkTo(ArtikelController.class).withRel("artikel")
+								);
 	}
+	
+	
 	
 	@PutMapping("/{id}")
 	public Artikel updateArtikel(@PathVariable Long id, @RequestBody Artikel artikel) {
