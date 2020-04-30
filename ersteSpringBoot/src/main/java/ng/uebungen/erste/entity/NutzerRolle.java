@@ -10,15 +10,25 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+
+
 
 @Entity
 @Table(name = "Rollen")
-@JsonIdentityInfo(
-		  generator = ObjectIdGenerators.PropertyGenerator.class, 
-		  property = "id")
-public class NutzerRolle {
+//@JsonIdentityInfo( 
+//		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+//		  property = "id")
+//@JsonRootName(value = "rolle")
+@Relation(value = "rolle",collectionRelation = "rollen")
+public class NutzerRolle extends RepresentationModel<NutzerRolle>{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +38,7 @@ public class NutzerRolle {
 	private String bezeichnung;
 	
 	@ManyToMany(mappedBy = "rollen")
+	@JsonIgnore
 	List<Nutzer> nutzer;
 	
 	
@@ -39,9 +50,7 @@ public class NutzerRolle {
 		this.bezeichnung = bezeichnung;
 	}
 
-	
-	
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -62,11 +71,11 @@ public class NutzerRolle {
 		this.nutzer = nutzer;
 	}
 
-	@Override
-	public String toString() {
-		return "NutzerRolle [Id=" + id + ", bezeichnung=" + bezeichnung + ", nutzer=" + nutzer + "]";
-	}
-	
+//	@Override
+//	public String toString() {
+//		return "NutzerRolle [Id=" + id + ", bezeichnung=" + bezeichnung + ", nutzer=" + nutzer + "]";
+//	}
+//	
 	
 	
 	

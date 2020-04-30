@@ -14,16 +14,21 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 
 @Entity
 @Table(name = "Nutzer")
-@JsonIdentityInfo(
-		  generator = ObjectIdGenerators.PropertyGenerator.class, 
-		  property = "id")
-public class Nutzer {
+//@JsonIdentityInfo(
+//		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+//		  property = "id")
+@Relation(value = "nutzer",collectionRelation = "nutzerListe")
+public class Nutzer extends RepresentationModel<Nutzer>{
 
 	
 	@Id
@@ -36,14 +41,15 @@ public class Nutzer {
 	@NotEmpty(message = "Nutzer_password wird benoetigt")
 	private String password;
 	
+	@JsonIgnore
 	@ManyToMany
 	@JoinTable(
-			name = "Nutzerrollen",
+			name = "Nrollen",
 			joinColumns = @JoinColumn(name="nutzer_id"),
 			inverseJoinColumns = @JoinColumn(name="rollen_id"))
 	private List<NutzerRolle> rollen = new ArrayList<NutzerRolle>();
 		
-	
+	@JsonIgnore
 	@OneToMany(mappedBy = "nutzer")
 	private List<Einkauf> einkaeufe;
 	

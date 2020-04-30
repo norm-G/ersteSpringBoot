@@ -1,8 +1,16 @@
 package ng.uebungen.erste.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +27,7 @@ import ng.uebungen.erste.entity.NutzerRolle;
 import ng.uebungen.erste.repository.NutzerRepository;
 import ng.uebungen.erste.repository.NutzerRollenRepository;
 import ng.uebungen.erste.exceptions.NotFoundException;
+import ng.uebungen.erste.haeteoas.NutzerAssembler;
 
 @RestController
 @RequestMapping("/nutzer")
@@ -39,14 +48,22 @@ public class NutzerController {
 	@Autowired
 	protected NutzerRollenRepository rollenRepro;
 	
+	@Autowired
+	protected NutzerAssembler nutzerAssembler;
+	
 	/*
 	 * root
 	 */
 	
 	@GetMapping("")
-	List<Nutzer> getAllNutzer2(){
-				
-		return nutzerRepro.findAll();
+	public ResponseEntity<?> getAllNutzer(){
+		
+		List<EntityModel<Nutzer>> nutzer = nutzerRepro.findAll().stream()
+															.map(nutzerAssembler::toModel)
+															.collect(Collectors.toList());
+		CollectionModel<EntityModel<Nutzer>> nutzerList = new CollectionModel<>(nutzer, linkTo(NutzerController.class).withSelfRel());
+		
+		return ResponseEntity.status(HttpStatus.OK).body(nutzerList);
 	}
 	
 	/*

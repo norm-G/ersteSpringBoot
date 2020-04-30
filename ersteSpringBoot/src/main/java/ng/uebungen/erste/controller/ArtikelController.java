@@ -41,7 +41,7 @@ public class ArtikelController {
 		}
 		
 		 
-		return new CollectionModel<>(artikel,
+		return new CollectionModel<Artikel>(artikel,
 									linkTo(ArtikelController.class).withSelfRel());
 	}
 	
