@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -71,14 +70,14 @@ public class RollenController {
  */
 		
 
-		CollectionModel<EntityModel<NutzerRolle>> rollen;
+		CollectionModel<?> rollen;
 		
-		List<EntityModel<NutzerRolle>> rollens= rollenRepro.findAll()
+		List<?> rollens= rollenRepro.findAll()
 												.stream()
 												.map(rolleAsembler::toModel)
 												.collect(Collectors.toList());
 		
-		rollen = new CollectionModel<EntityModel<NutzerRolle>>(rollens,linkTo(RollenController.class).withSelfRel());
+		rollen = new CollectionModel<>(rollens,linkTo(RollenController.class).withSelfRel());
 		
 		return ResponseEntity.status(HttpStatus.OK)
 								.body(rollen);
@@ -87,14 +86,14 @@ public class RollenController {
 	
 	//Neu
 	@PostMapping("")
-	public ResponseEntity<EntityModel<NutzerRolle>> newRoll(@RequestBody NutzerRolle rolle) {
+	public ResponseEntity<?> newRoll(@RequestBody NutzerRolle rolle) {
 		return ResponseEntity.status(HttpStatus.CREATED)
 								.body(rolleAsembler.toModel(rollenRepro.save(rolle)));
 	}
 	
 	//Einzel
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<NutzerRolle>> getRolle(@PathVariable Long id) {
+	public ResponseEntity<?> getRolle(@PathVariable Long id) {
 		
 		NutzerRolle rolle = rollenRepro.findById(id).orElseThrow(()-> new NotFoundException(id,exName));
 		
@@ -104,10 +103,10 @@ public class RollenController {
 	
 	//Nutzer per Rolle
 	@GetMapping("/{id}/nutzer")
-	public ResponseEntity<CollectionModel<EntityModel<Nutzer>>> getNutzerPerRolle(@PathVariable Long id){
+	public ResponseEntity<?> getNutzerPerRolle(@PathVariable Long id){
 		
 		NutzerRolle rolle = rollenRepro.findById(id).orElseThrow(()-> new NotFoundException(id,exName));
-		CollectionModel<EntityModel<Nutzer>> nutzers;
+		CollectionModel<?> nutzers;
 		
 		List<EntityModel<Nutzer>> nutzer= rolle.getNutzer()
 											.stream()
@@ -123,7 +122,7 @@ public class RollenController {
 	
 	//Update oder Neu
 	@PutMapping("/{id}")
-	public ResponseEntity<EntityModel<NutzerRolle>> updateRolle(@PathVariable Long id, @RequestBody NutzerRolle rolle) {
+	public ResponseEntity<?> updateRolle(@PathVariable Long id, @RequestBody NutzerRolle rolle) {
 		
 		return rollenRepro.findById(id).map(
 						zwischenRolle -> {
@@ -143,18 +142,5 @@ public class RollenController {
 		return ResponseEntity.status(HttpStatus.ACCEPTED)
 								.body(null);
 	}
-	
-	
-	/** Fuegt Links zur Rolle hinzu 
-	 * 
-	 * @exception Check auf Existens ervorderlich
-	 */
-//	private EntityModel<NutzerRolle> addLinks(NutzerRolle rolle){
-//		return new EntityModel<>(rolle,
-//								linkTo(RollenController.class).slash(rolle.getId()).withSelfRel(),
-//								linkTo(RollenController.class).withRel("rollen")
-//								); 
-//	}
-	
-	
+		
 }

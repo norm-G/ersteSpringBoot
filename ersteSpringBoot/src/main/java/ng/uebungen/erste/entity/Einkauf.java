@@ -16,6 +16,7 @@ import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
@@ -31,11 +32,12 @@ public class Einkauf extends RepresentationModel<Einkauf>{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn
 	private Nutzer nutzer;
 	
+	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name="Einkaufswagen",
 				joinColumns = @JoinColumn(name="einkauf_id"),

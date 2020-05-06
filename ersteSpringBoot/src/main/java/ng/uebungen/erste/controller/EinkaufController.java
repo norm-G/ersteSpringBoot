@@ -1,9 +1,15 @@
 package ng.uebungen.erste.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +23,9 @@ import ng.uebungen.erste.entity.Artikel;
 import ng.uebungen.erste.entity.Einkauf;
 import ng.uebungen.erste.entity.Nutzer;
 import ng.uebungen.erste.exceptions.NotFoundException;
+import ng.uebungen.erste.haeteoas.ArtikelAssembler;
+import ng.uebungen.erste.haeteoas.EinkaufAssembler;
+import ng.uebungen.erste.haeteoas.NutzerAssembler;
 import ng.uebungen.erste.repository.ArtikelRepository;
 import ng.uebungen.erste.repository.EinkaufRepository;
 
@@ -34,17 +43,33 @@ public class EinkaufController {
 	@Autowired
 	ArtikelRepository artikelRepro;
 	
+	@Autowired
+	EinkaufAssembler einkaufAssembler;
+	
+	@Autowired
+	NutzerAssembler nutzerAssembler;
+	
+	@Autowired 
+	ArtikelAssembler artikelAssembler;
+	
 	/*
 	 * root
 	 */
 	@GetMapping("")
-	public List<Einkauf> alleEinkaeufe(){
-		return einkaufRepo.findAll();
+	public ResponseEntity<?> alleEinkaeufe(){
+		
+		List<?> einkaeufe = einkaufRepo.findAll().stream()
+													.map(einkaufAssembler::toModel)
+													.collect(Collectors.toList());
+		CollectionModel<?> einkaeufeLinked= new CollectionModel<>(einkaeufe, linkTo(EinkaufController.class).withSelfRel());
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(einkaeufeLinked) ;
 	}
 	
 	@PostMapping("")
-	public Einkauf newEinkauf(@RequestBody Einkauf einkauf) {
-		return einkaufRepo.save(einkauf);
+	public ResponseEntity<?> newEinkauf(@RequestBody Einkauf einkauf) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(einkaufAssembler.toModel(einkaufRepo.save(einkauf)));
 	}
 	
 	
@@ -52,53 +77,68 @@ public class EinkaufController {
 	 * einzel
 	 */
 	@GetMapping("/{id}")
-	public Einkauf einkaufPerId(@PathVariable Long id) {
-		return einkaufRepo.findById(id).orElseThrow(()->new NotFoundException(id, exEinkauf));
+	public ResponseEntity<?> einkaufPerId(@PathVariable Long id) {
+		
+		Einkauf einkauf = einkaufRepo.findById(id).orElseThrow(()->new NotFoundException(id, exEinkauf));
+		
+		return ResponseEntity.status(HttpStatus.OK).body(einkaufAssembler.toModel(einkauf));
 	}
 	
 	
 	@GetMapping("/{id}/nutzer")
-	public Nutzer einkaufsNutzer(@PathVariable Long id) {
+	public ResponseEntity<?> einkaufsNutzer(@PathVariable Long id) {
 		
 		Einkauf einkauf = einkaufRepo.findById(id).orElseThrow(()-> new NotFoundException(id, exEinkauf));
-	
-		return einkauf.getNutzer();
+		
+		// um _embedded zu erreichen
+		List<EntityModel<Nutzer>> nutzerLinked = new ArrayList<>();
+		nutzerLinked.add(nutzerAssembler.toModel(einkauf.getNutzer()));
+				
+		CollectionModel<?> allLinked = new CollectionModel<>(nutzerLinked, 
+																	linkTo(EinkaufController.class)
+																			.slash(einkauf.getId())
+																			.withRel("einkauf"));
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(allLinked);
 	}
 	
 	@GetMapping("/{id}/artikel")
-	public List<Artikel> einkaufsArtikel(@PathVariable Long id){
+	public ResponseEntity<?> einkaufsArtikel(@PathVariable Long id){
 		Einkauf einkauf = einkaufRepo.findById(id).orElseThrow(()-> new NotFoundException(id, exEinkauf));
-		return einkauf.getArtikel();
+		List<?> artikel = einkauf.getArtikel().stream()
+												.map(artikelAssembler::toModel)
+												.collect(Collectors.toList());
+				
+		CollectionModel<?> allArtikel = new CollectionModel<>(artikel,linkTo(EinkaufController.class)
+																		.slash(einkauf.getId())
+																		.withRel("einkauf"));
+				
+		return ResponseEntity.status(HttpStatus.OK).body(allArtikel);
 	}
 	
 	
 	/*
-	 * Update artikel
-	 */
-	/*
+	 * add Artikel
+	 * 
+	 */		
 	@PutMapping("/{id}/artikel")
-	public Einkauf addArtikel(@PathVariable Long id, @RequestBody Artikel artikel) {
+	public ResponseEntity<?> addArtikel(@PathVariable Long id, @RequestBody Artikel artikel) {
+		
 		Einkauf einkauf = einkaufRepo.findById(id).orElseThrow(()-> new NotFoundException(id, exEinkauf));
+		Artikel newArtikel = artikelRepro.findById(artikel.getId()).orElseThrow(()-> new NotFoundException(artikel.getId(),exArtikel));
 		
-		artikel = artikelRepro.findById(artikel.getId()).orElseThrow(()-> new NotFoundException(exArtikel));
-		einkauf.addArtikel(artikel);
-		
-		return einkaufRepo.save(einkauf); 
-	}*/
 	
-	@PutMapping("/{id}/artikel")
-	public Einkauf addListeVonArtikel(@PathVariable Long id, @RequestBody List<Artikel> artikel) {
-		Einkauf einkauf = einkaufRepo.findById(id).orElseThrow(()-> new NotFoundException(id, exEinkauf));
+		einkauf.addArtikel(newArtikel);
+		einkaufRepo.save(einkauf);
 		
-		List<Artikel> lArtikel = new ArrayList<Artikel>();
+		List<?> artikelLinked = einkauf.getArtikel().stream().map(artikelAssembler::toModel).collect(Collectors.toList());
 		
-		for(Artikel einArtikel: artikel) {
-			lArtikel.add(artikelRepro.findById(einArtikel.getId()).orElseThrow(()-> new NotFoundException(einArtikel.getId(),exArtikel)));
-		}
+		CollectionModel<?> allArtikelLinked = new CollectionModel<>(artikelLinked, linkTo(EinkaufController.class)
+																						.slash(einkauf.getId())
+																						.withRel("einkauf"));
 		
-		einkauf.setArtikel(lArtikel);
-		
-		return einkaufRepo.save(einkauf); 
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body(allArtikelLinked); 
 	}
 
 	
@@ -107,12 +147,15 @@ public class EinkaufController {
 	 * delete
 	 */
 	@DeleteMapping("/{id}")
-	public void deleteEinakuf(@PathVariable Long id) {
+	public ResponseEntity<?> deleteEinakuf(@PathVariable Long id) {
 		einkaufRepo.deleteById(id);
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
 	}
 	
+	
+	
 	@DeleteMapping("/{einkaufId}/artikel/{artikelId}")
-	public void deleteArtikelFromEinkauf(
+	public ResponseEntity<?> deleteArtikelFromEinkauf(
 				@PathVariable(name = "einkaufId") Long einkaufId,
 					@PathVariable(name = "artikelId") Long artikelId) {
 		
@@ -120,5 +163,7 @@ public class EinkaufController {
 		Artikel artikel = artikelRepro.findById(artikelId).orElseThrow(()-> new NotFoundException(artikelId, exArtikel));
 		einkauf.removeArtiekl(artikel);
 		einkaufRepo.save(einkauf);
+		
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
 	}
 }

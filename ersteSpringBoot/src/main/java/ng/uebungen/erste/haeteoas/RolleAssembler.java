@@ -17,9 +17,10 @@ public class RolleAssembler implements RepresentationModelAssembler<NutzerRolle,
 	public EntityModel<NutzerRolle> toModel(NutzerRolle rolle) {
 		
 		Link selfLink = linkTo(RollenController.class).slash(rolle.getId()).withSelfRel();
+		Link nutzerLink = linkTo(RollenController.class).slash(rolle.getId()).slash("nutzer").withRel("nutzer");
 		Link allLink = linkTo(RollenController.class).withRel("rollen");
 		
-		return new EntityModel<NutzerRolle>(rolle,selfLink,allLink);
+		return new EntityModel<NutzerRolle>(rolle , selfLink , nutzerLink , allLink);
 	}
 
 }
