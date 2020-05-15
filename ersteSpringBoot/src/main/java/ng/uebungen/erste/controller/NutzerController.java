@@ -73,9 +73,9 @@ public class NutzerController {
 	 */
 	@PostMapping("")
 	public ResponseEntity<?> newNutzer(@RequestBody Nutzer nutzer) {
+		
 		///plain password codieren
-		String password = nutzer.getPassword();
-		nutzer.setPassword(encoder.encode(password));
+		nutzer.setPassword(encoder.encode(nutzer.getPassword()));
 		
 		nutzerRepro.save(nutzer);
 		

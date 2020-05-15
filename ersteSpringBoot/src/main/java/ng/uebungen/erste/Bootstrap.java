@@ -65,7 +65,7 @@ public class Bootstrap implements ApplicationListener<ApplicationReadyEvent>{
 			
 			
 			Nutzer bob = new Nutzer("bob",this.encoder.encode("1234"));
-			Nutzer noob = new Nutzer("noob",this.encoder.encode("1234"));
+			Nutzer noob = new Nutzer("nob",this.encoder.encode("1234"));
 			
 			bob.addRolle(admin);
 			noob.addRolle(user);
